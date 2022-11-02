@@ -1,8 +1,3 @@
-// let canvasWidth = Math.min(800, $(window).width() - 20)
-
-// if (window.screen.availWidth < 768) {
-//   canvasWidth = window.screen.availWidth - 20
-
 let canvasWidth = window.screen.width < 820 ? window.screen.availWidth - 20 : 800
 console.log(window.screen.availWidth);
 let canvasHeight = canvasWidth
