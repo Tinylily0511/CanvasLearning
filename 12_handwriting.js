@@ -1,4 +1,10 @@
-let canvasWidth = Math.min(800, $(window).width()-20)
+// let canvasWidth = Math.min(800, $(window).width() - 20)
+
+// if (window.screen.availWidth < 768) {
+//   canvasWidth = window.screen.availWidth - 20
+
+let canvasWidth = window.screen.width < 820 ? window.screen.availWidth - 20 : 800
+console.log(window.screen.availWidth);
 let canvasHeight = canvasWidth
 
 let strokeColor = 'black'
@@ -22,7 +28,6 @@ drawGrid()
 //   context.clearRect(0, 0, canvasWidth, canvasHeight)
 //   drawGrid()
 // })
-
 $('#clear_btn').click(
   function () {
     context.clearRect(0, 0, canvasWidth, canvasHeight)
@@ -40,98 +45,83 @@ $('#clear_btn').click(
 //     strokeColor = getComputedStyle(btns[i],null)['backgroundColor']
 //   } 
 // }
-
 $(".color_btn").click(
-  function () {
-    $(this).addClass('color_btn_selected').siblings().removeClass('color_btn_selected')
-    strokeColor = $(this).css('background-color')
-  }
+function () {
+  $(this).addClass('color_btn_selected').siblings().removeClass('color_btn_selected')
+  strokeColor = $(this).css('background-color')
+}
 )
 
-if (window.screen.availWidth < 768) {
-  canvasWidth = window.screen.availWidth - 20
-  window.onload = function startup(){
-    canvas.addEventListener('touchstart', function (e) {
-      e.preventDefault()
-      isMouseDown = true
-      lastLoc = windowToCanvas(e.clientX, e.clientY)
-      lastTimestamp = new Date().getTime()
-      console.log(e.touches);
-    }, false )
-    
-    canvas.addEventListener('touchend', function (e) {
-      e.preventDefault()
-      isMouseDown = false
-    }, false) 
-    canvas.addEventListener('touchmove', function (e) {
-      e.preventDefault()
-      if (isMouseDown) {
-        let curLoc = windowToCanvas(e.clientX, e.clientY)
-        let curTimestamp = new Date().getTime()
-        let s = calcDistance(curLoc, lastLoc)
-        let t = curTimestamp - lastTimestamp
+canvas.addEventListener('touchstart', function (e) {
+  e.preventDefault()
+  touch = e.touches[0]
+  beginStroke({ x: touch.pageX, y: touch.pageY })
+})
   
-        let lineWidth = calclineWidth(t, s)
-  
-        context.beginPath()
-        context.moveTo(lastLoc.x, lastLoc.y)
-        context.lineTo(curLoc.x, curLoc.y)
-  
-        context.strokeStyle = strokeColor
-        context.lineWidth = lineWidth
-        context.lineCap = 'round'
-        context.lineJoin = 'round'
-        context.stroke()
-  
-        lastLoc = curLoc
-        lastTimestamp = curTimestamp
-        lastLineWidth = lineWidth
-      }
-    }, false) 
+canvas.addEventListener('touchend', function (e) {
+  e.preventDefault()
+  endStroke()
+})
+
+canvas.addEventListener('touchmove', function (e) {
+  e.preventDefault()
+  if (isMouseDown) {
+    touch = e.touches[0]
+    moveStroke({ x: touch.pageX, y: touch.pageY })
   }
-} else {
-  canvas.onmousedown = function (e) {
-    e.preventDefault()
-    isMouseDown = true
-    lastLoc = windowToCanvas(e.clientX, e.clientY)
-    lastTimestamp = new Date().getTime()
+}) 
+
+canvas.onmousedown = function (e) {
+  e.preventDefault()
+  beginStroke({ x: e.clientX, y: e.clientY })
+}
+
+canvas.onmouseup = function (e) {
+  e.preventDefault()
+  endStroke()
+}
+
+canvas.onmouseout = function (e) {
+  e.preventDefault()
+  endStroke()
+}
+
+canvas.onmousemove = function (e) {
+  e.preventDefault()
+  if (isMouseDown) {
+    moveStroke({ x: e.clientX, y: e.clientY })
   }
+}
 
-  canvas.onmouseup = function (e) {
-    e.preventDefault()
-    isMouseDown = false
-  }
+function beginStroke(point) {
+  isMouseDown = true
+  lastLoc = windowToCanvas(point.x, point.y)
+  lastTimestamp = new Date().getTime()
+}
+function endStroke() {
+  isMouseDown = false
+}
+function moveStroke(point) {
+  let curLoc = windowToCanvas(point.x, point.y)
+  let curTimestamp = new Date().getTime()
+  let s = calcDistance(curLoc, lastLoc)
+  let t = curTimestamp - lastTimestamp
 
-  canvas.onmouseout = function (e) {
-    e.preventDefault()
-    isMouseDown = false
-  }
+  let lineWidth = calclineWidth(t, s)
 
-  canvas.onmousemove = function (e) {
-    e.preventDefault()
-    if (isMouseDown) {
-      let curLoc = windowToCanvas(e.clientX, e.clientY)
-      let curTimestamp = new Date().getTime()
-      let s = calcDistance(curLoc, lastLoc)
-      let t = curTimestamp - lastTimestamp
+  context.beginPath()
+  context.moveTo(lastLoc.x, lastLoc.y)
+  context.lineTo(curLoc.x, curLoc.y)
 
-      let lineWidth = calclineWidth(t, s)
+  context.strokeStyle = strokeColor
+  context.lineWidth = lineWidth
+  context.lineCap = 'round'
+  context.lineJoin = 'round'
+  context.stroke()
 
-      context.beginPath()
-      context.moveTo(lastLoc.x, lastLoc.y)
-      context.lineTo(curLoc.x, curLoc.y)
-
-      context.strokeStyle = strokeColor
-      context.lineWidth = lineWidth
-      context.lineCap = 'round'
-      context.lineJoin = 'round'
-      context.stroke()
-
-      lastLoc = curLoc
-      lastTimestamp = curTimestamp
-      lastLineWidth = lineWidth
-    }
-  }
+  lastLoc = curLoc
+  lastTimestamp = curTimestamp
+  lastLineWidth = lineWidth
 }
 
 function windowToCanvas(x, y) {
