@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <input
+      id="scale-range"
+      type="range"
+      min="0.5"
+      max="3.0"
+      step="0.01"
+      value="1.0"
+      style="display: block; margin: 30px auto; width: 600px"
+    />
+    <canvas
+      id="canvas"
+      style="border: 1px solid #aaa; display: block; margin: 10px auto"
+      >该浏览器不支持Canvas</canvas
+    >
+    <canvas
+      id="watermark-canvas"
+      style="display: none; margin: 0 auto; border: 1px solid #aaa"
+      >该浏览器不支持Canvas</canvas
+    >
+
+    <script>
+      const canvas = document.getElementById("canvas");
+      const context = canvas.getContext("2d");
+      const slider = document.getElementById("scale-range");
+
+      const watermarkCanvas = document.getElementById("watermark-canvas");
+      const watermarkContext = watermarkCanvas.getContext("2d");
+
+      let image = new Image();
+      let isMouseDown = false;
+
+      canvas.width = 798;
+      canvas.height = 998;
+      watermarkCanvas.width = 600;
+      watermarkCanvas.height = 100;
+
+      let scale = slider.value;
+
+      image.src = "./image/color.png";
+      image.onload = function () {
+        // context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        drawImageByScale(scale);
+        slider.onmousemove = function () {
+          scale = slider.value;
+          drawImageByScale(scale);
+        };
+      };
+
+      watermarkContext.font = "bold 50px Arial";
+      watermarkContext.fillStyle = "rgba(255, 255, 255, 0.7)";
+      watermarkContext.textBaseline = "middle";
+      watermarkContext.fillText("== copyright of Lily ==", 20, 70);
+
+      canvas.onmousedown = function (e) {
+        e.preventDefault();
+        // let point = windowToCanvas(e.clientX, e.clientY);
+        isMouseDown = true;
+      };
+
+      canvas.onmousemove = function (e) {
+        e.preventDefault();
+        if (isMouseDown == true) {
+          let point = windowToCanvas(e.clientX, e.clientY);
+          console.log(point);
+        }
+      };
+
+      canvas.onmouseup = function (e) {
+        e.preventDefault();
+
+        isMouseDown = false;
+      };
+
+      canvas.onmouseout = function (e) {
+        e.preventDefault();
+      };
+
+      function drawImageByScale(scale) {
+        // let imageWidth = canvas.width * scale;
+        // let imageHeight = canvas.height * scale;
+        let imageWidth = 798 * scale;
+        let imageHeight = 998 * scale;
+
+        let dx = canvas.width / 2 - imageWidth / 2;
+        let dy = canvas.height / 2 - imageHeight / 2;
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, dx, dy, imageWidth, imageHeight);
+        context.drawImage(
+          watermarkCanvas,
+          canvas.width - watermarkCanvas.width,
+          canvas.height - watermarkCanvas.height
+        );
+      }
+      function windowToCanvas(x, y) {
+        let bbox = canvas.getBoundingClientRect();
+        return { x: x - bbox.left, y: y - bbox.top };
+      }
+    </script>
+  </body>
+</html>

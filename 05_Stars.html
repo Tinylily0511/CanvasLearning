@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <canvas
+      id="canvas"
+      style="border: 1px solid #aaa; display: block; margin: 50px auto"
+      >该浏览器不支持Canvas</canvas
+    >
+
+    <script>
+      const canvas = document.getElementById("canvas");
+      const context = canvas.getContext("2d");
+
+      canvas.width = 800;
+      canvas.height = 800;
+
+      context.fillStyle = "black";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < 150; i++) {
+        let r = Math.random() * 10 + 15;
+        let x = Math.random() * canvas.width;
+        let y = Math.random() * canvas.height * 0.65;
+        let a = Math.random() * 360;
+        drawStar(context, x, y, r, r / 2.0, a);
+      }
+
+      function drawStar(cxt, x, y, R, r, rot) {
+        cxt.beginPath();
+        for (let i = 0; i < 5; i++) {
+          cxt.lineTo(
+            Math.cos(((18 + i * 72 - rot) / 180) * Math.PI) * R + x,
+            -Math.sin(((18 + i * 72 - rot) / 180) * Math.PI) * R + y
+          ),
+            cxt.lineTo(
+              Math.cos(((54 + i * 72 - rot) / 180) * Math.PI) * r + x,
+              -Math.sin(((54 + i * 72 - rot) / 180) * Math.PI) * r + y
+            );
+        }
+        cxt.closePath();
+
+        cxt.fillStyle = "#fb3";
+        cxt.strokeStyle = "#fd5";
+        cxt.lineWidth = 3;
+        cxt.lineJoin = "round";
+
+        cxt.fill();
+        cxt.stroke();
+      }
+    </script>
+  </body>
+</html>
